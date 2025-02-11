@@ -38,28 +38,29 @@ env:
 phases:
   pre_build:
     commands:
+      - echo "Checking AWS CLI version..."
+      - aws --version
+      - echo "Checking AWS identity..."
+      - aws sts get-caller-identity
+      - echo "Listing ECR repositories..."
+      - aws ecr describe-repositories --region $AWS_REGION
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 489994096722.dkr.ecr.us-east-2.amazonaws.com
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
-      - echo "IMAGE_TAG is $IMAGE_TAG"
+      - echo "Pre-build phase complete."
 
   build:
     commands:
       - echo "Building the Docker image..."
       - docker build -t $ECR_REPO_URL:latest .
-      - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$IMAGE_TAG
+      - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
 
   post_build:
     commands:
       - echo "Pushing the Docker image to Amazon ECR..."
       - docker push $ECR_REPO_URL:latest
-      - docker push $ECR_REPO_URL:$IMAGE_TAG
-      - echo "Writing image definitions file..."
-      - echo '[{"name":"my-container","imageUri":"'"$ECR_REPO_URL:$IMAGE_TAG"'"}]' > imagedefinitions.json
-      - cat imagedefinitions.json
-      - echo "Updating ECS service..."
-      - aws ecs update-service --cluster nginx-cluster99 --service nginx-service22 --force-new-deployment
+      - docker push $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
 
 artifacts:
   files:
     - imagedefinitions.json
+
