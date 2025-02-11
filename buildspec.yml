@@ -4,10 +4,13 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
+      - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - aws configure set region us-east-2
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 489994096722.dkr.ecr.us-east-2.amazonaws.com
-      - REPO_URI=489994096722.dkr.ecr.us-east-2.amazonaws.com/my-app-repo
+      - REPO_URI=489994096722.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-  
+
   build:
     commands:
       - echo Building the Docker image...
@@ -24,3 +27,4 @@ phases:
 
 artifacts:
   files: imagedefinitions.json
+
