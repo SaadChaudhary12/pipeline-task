@@ -60,7 +60,6 @@ phases:
       - docker push $ECR_REPO_URL:latest
       - docker push $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
 
-artifacts:
-  files:
-    - imagedefinitions.json
 
+artifacts:
+  files: []
