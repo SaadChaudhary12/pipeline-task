@@ -54,6 +54,46 @@
 #     - appspec.yml
 
 
+# version: 0.2
+
+# env:
+#   variables:
+#     AWS_REGION: "us-east-2"
+#     ECR_REPO_URL: "489994096722.dkr.ecr.us-east-2.amazonaws.com/my-app-repo"
+
+# phases:
+#   pre_build:
+#     commands:
+#       - echo "Checking AWS CLI version..."
+#       - aws --version
+#       - echo "Checking AWS identity..."
+#       - aws sts get-caller-identity
+#       - echo "Listing ECR repositories..."
+#       - aws ecr describe-repositories --region us-east-2
+#       - echo "Logging in to Amazon ECR..."
+#       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 489994096722.dkr.ecr.us-east-2.amazonaws.com
+#       - echo "Pre-build phase complete."
+
+#   build:
+#     commands:
+#       - echo "Building the Docker image..."
+#       - docker build -t $ECR_REPO_URL:latest .
+#       - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+
+#   post_build:
+#     commands:
+#       - echo "Pushing the Docker image to Amazon ECR..."
+#       - docker push $ECR_REPO_URL:latest
+#       - docker push $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+#       - printf '[{"name":"my-container","imageUri":"%s"}]' $ECR_REPO_URL:$IMAGE_TAG > taskdef.json
+
+
+# artifacts:
+#   files:
+#     - taskdef.json
+
+
+
 version: 0.2
 
 env:
@@ -69,23 +109,26 @@ phases:
       - echo "Checking AWS identity..."
       - aws sts get-caller-identity
       - echo "Listing ECR repositories..."
-      - aws ecr describe-repositories --region us-east-2
+      - aws ecr describe-repositories --region $AWS_REGION
       - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 489994096722.dkr.ecr.us-east-2.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
       - echo "Pre-build phase complete."
 
   build:
     commands:
       - echo "Building the Docker image..."
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
       - docker build -t $ECR_REPO_URL:latest .
-      - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$IMAGE_TAG
 
   post_build:
     commands:
       - echo "Pushing the Docker image to Amazon ECR..."
       - docker push $ECR_REPO_URL:latest
-      - docker push $ECR_REPO_URL:$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
-
+      - docker push $ECR_REPO_URL:$IMAGE_TAG
+      - echo "Writing image definitions file..."
+      - printf '[{"name":"my-container","imageUri":"%s"}]' "$ECR_REPO_URL:$IMAGE_TAG" > taskdef.json
 
 artifacts:
-  files: []
+  files:
+    - taskdef.json
