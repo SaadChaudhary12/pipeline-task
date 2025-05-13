@@ -118,7 +118,7 @@ phases:
     commands:
       - echo "Building the Docker image..."
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
-      - docker build -t 233317620877.dkr.ecr.us-east-1.amazonaws.com/my-app-repo::latest .
+      - docker build -t 233317620877.dkr.ecr.us-east-1.amazonaws.com/my-app-repo:latest .
       - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$IMAGE_TAG
 
   post_build:
