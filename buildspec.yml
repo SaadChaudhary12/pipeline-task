@@ -174,7 +174,7 @@ phases:
           - TargetService:
               Type: AWS::ECS::Service
               Properties:
-                TaskDefinition: <TASK_DEFINITION>
+                TaskDefinition: "nginx-task"
                 LoadBalancerInfo:
                   ContainerName: "my-container"
                   ContainerPort: 80
