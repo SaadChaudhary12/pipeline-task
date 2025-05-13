@@ -249,7 +249,7 @@ phases:
           "containerDefinitions": [
             {
               "name": "my-container",
-              "image": "<IMAGE1_NAME>",
+              "image": "${ECR_REPO_URL}:${IMAGE_TAG}",
               "essential": true,
               "portMappings": [
                 {
