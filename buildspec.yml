@@ -99,7 +99,7 @@ version: 0.2
 env:
   variables:
     AWS_REGION: "us-east-1"
-    ECR_REPO_URL: "233317620877.dkr.ecr.us-east-1.amazonaws.com/my-app-repo"
+    ECR_REPO_URL: "233317620877.dkr.ecr.us-east-1.amazonaws.com/nginx"
 
 phases:
   pre_build:
