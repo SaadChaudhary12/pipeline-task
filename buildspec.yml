@@ -127,7 +127,7 @@ phases:
       - docker push $ECR_REPO_URL:latest
       - docker push $ECR_REPO_URL:$IMAGE_TAG
       - echo "Writing image definitions file..."
-      - printf '[{"name":"my-container","imageUri":"%s"}]' "$ECR_REPO_URL:$IMAGE_TAG" > imagedefinitions.json
+      - printf '[{"name":"nginx-container","imageUri":"%s"}]' "$ECR_REPO_URL:$IMAGE_TAG" > imagedefinitions.json
       - cat imagedefinitions.json
 
 artifacts:
